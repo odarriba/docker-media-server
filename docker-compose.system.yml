@@ -21,16 +21,6 @@ x-traefik-auth-labels: &traefik-auth-labels
   traefik.frontend.auth.basic: ${HTTP_AUTH}
 
 services:
-  ddclient:
-    container_name: ddclient
-    image: linuxserver/ddclient
-    restart: unless-stopped
-    environment:
-      PUID: ${PUID}
-      PGID: ${PGID}
-      TZ: ${TIMEZONE}
-    volumes:
-      - ${CONFIG_PATH}/ddclient:/config
 
   watchtower:
     container_name: watchtower
@@ -39,76 +29,6 @@ services:
     volumes:
       - ${DOCKER_SOCKET}:/var/run/docker.sock
     command: --schedule "0 0 4 * * *" --cleanup
-
-  muximux:
-    container_name: muximux
-    image: linuxserver/muximux
-    restart: unless-stopped
-    ports:
-      - "8888:80"
-    environment:
-      PUID: ${PUID}
-      PGID: ${PGID}
-      TZ: ${TIMEZONE}
-    volumes:
-      - ${CONFIG_PATH}/muximux:/config
-    networks:
-        - traefik
-    labels:
-      <<: *traefik-auth-labels
-      traefik.backend: muximux
-      traefik.frontend.rule: "Host:muximux.${SERVER_DOMAIN}"
-      traefik.port: 80
-
-  influxdb:
-    container_name: influxdb
-    image: influxdb
-    restart: unless-stopped
-    ports:
-      - "8086:8086"
-    environment:
-      PUID: ${PUID}
-      PGID: ${PGID}
-      TZ: ${TIMEZONE}
-    volumes:
-      - ${CONFIG_PATH}/influxdb:/var/lib/influxdb
-    networks:
-      - system
-
-  glances:
-    container_name: glances
-    image: nicolargo/glances
-    restart: unless-stopped
-    depends_on:
-      - influxdb
-    pid: host
-    environment:
-      GLANCES_OPT: --quiet --export influxdb
-    volumes:
-      - ${DOCKER_SOCKET}:/var/run/docker.sock:ro
-      - ${CONFIG_PATH}/glances:/glances/conf
-    networks:
-      - system
-
-  grafana:
-    container_name: grafana
-    image: grafana/grafana
-    restart: unless-stopped
-    depends_on:
-      - influxdb
-    ports:
-      - "3000:3000"
-    user: ${PUID}
-    volumes:
-      - ${CONFIG_PATH}/grafana:/var/lib/grafana
-    networks:
-        - system
-        - traefik
-    labels:
-      <<: *traefik-default-labels
-      traefik.backend: grafana
-      traefik.frontend.rule: "Host:grafana.${SERVER_DOMAIN}"
-      traefik.port: 3000
 
   portainer:
     container_name: portainer
@@ -154,33 +74,6 @@ services:
       traefik.backend: traefik
       traefik.frontend.rule: "Host:traefik.${SERVER_DOMAIN}"
       traefik.port: 8080
-
-  pihole:
-    container_name: pihole
-    image: pihole/pihole
-    restart: unless-stopped
-    ports:
-      - "53:53/tcp"
-      - "53:53/udp"
-      - "67:67/udp"
-      - "8088:80"
-    environment:
-      TZ: ${TIMEZONE}
-      ServerIP: ${HOST_IP}
-      #ServerIPv6: ${HOST_IP}
-      VIRTUAL_HOST: ${HOST_IP}:8088
-    volumes:
-      - ${CONFIG_PATH}/dnsmasq.d:/etc/dnsmasq.d
-      - ${CONFIG_PATH}/pihole:/etc/pihole
-    networks:
-      - traefik
-    cap_add:
-      - NET_ADMIN
-    labels:
-      <<: *traefik-auth-labels
-      traefik.backend: pihole
-      traefik.frontend.rule: "Host:pihole.${SERVER_DOMAIN}"
-      traefik.port: 80
 
 networks:
   traefik:
