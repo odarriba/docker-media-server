@@ -32,10 +32,11 @@ services:
       - "traefik.http.routers.plex.entrypoints=http"
       - "traefik.http.routers.plex.middlewares=https-redirect"
       - "traefik.http.routers.plex-secure.rule=Host(`plex.${SERVER_DOMAIN}`)"
+      - "traefik.http.routers.plex-secure.service=plex"
       - "traefik.http.routers.plex-secure.entrypoints=https"
       - "traefik.http.routers.plex-secure.tls=true"
       - "traefik.http.routers.plex-secure.tls.certresolver=letsencrypt"
-      - "traefik.port=32400"
+      - "traefik.http.services.plex.loadbalancer.server.port=32400"
 
   tautulli:
     container_name: tautulli
@@ -56,10 +57,11 @@ services:
       - "traefik.http.routers.tautulli.entrypoints=http"
       - "traefik.http.routers.tautulli.middlewares=https-redirect"
       - "traefik.http.routers.tautulli-secure.rule=Host(`tautulli.${SERVER_DOMAIN}`)"
+      - "traefik.http.routers.tautulli-secure.service=tautulli"
       - "traefik.http.routers.tautulli-secure.entrypoints=https"
       - "traefik.http.routers.tautulli-secure.tls=true"
       - "traefik.http.routers.tautulli-secure.tls.certresolver=letsencrypt"
-      - "traefik.port=8181"
+      - "traefik.http.services.tautulli.loadbalancer.server.port=8181"
 
   ombi:
     container_name: ombi
@@ -80,7 +82,8 @@ services:
       - "traefik.http.routers.ombi.entrypoints=http"
       - "traefik.http.routers.ombi.middlewares=https-redirect"
       - "traefik.http.routers.ombi-secure.rule=Host(`ombi.${SERVER_DOMAIN}`)"
+      - "traefik.http.routers.ombi-secure.service=ombi"
       - "traefik.http.routers.ombi-secure.entrypoints=https"
       - "traefik.http.routers.ombi-secure.tls=true"
       - "traefik.http.routers.ombi-secure.tls.certresolver=letsencrypt"
-      - "traefik.port=3579"
+      - "traefik.http.services.ombi.loadbalancer.server.port=3579"
