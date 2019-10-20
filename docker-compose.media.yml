@@ -1,25 +1,5 @@
 version: '3.5'
 
-x-traefik-default-labels: &traefik-default-labels
-  traefik.backend: BACKEND
-  traefik.frontend.rule: "Host:SERVICE.${SERVER_DOMAIN}"
-  traefik.port: PORT
-  traefik.enable: true
-  traefik.docker.network: traefik
-  traefik.frontend.headers.SSLRedirect: true
-  traefik.frontend.headers.STSSeconds: 315360000
-  traefik.frontend.headers.browserXSSFilter: true
-  traefik.frontend.headers.contentTypeNosniff: true
-  traefik.frontend.headers.forceSTSHeader: true
-  traefik.frontend.headers.SSLHost: ${ROOT_DOMAIN}
-  traefik.frontend.headers.STSIncludeSubdomains: true
-  traefik.frontend.headers.STSPreload: true
-  traefik.frontend.headers.frameDeny: false
-
-x-traefik-auth-labels: &traefik-auth-labels
-  <<: *traefik-default-labels
-  traefik.frontend.auth.basic: ${HTTP_AUTH}
-
 services:
 
   plex:
@@ -46,13 +26,16 @@ services:
       - ${CONFIG_PATH}/plex:/config
       - ${PLEX_TRANSCODING_PATH}:/transcode
       - ${REMOTE_MEDIA_PATH}:/data
-    networks:
-      - traefik
     labels:
-      <<: *traefik-default-labels
-      traefik.backend: plex
-      traefik.frontend.rule: "Host:plex.${SERVER_DOMAIN}"
-      traefik.port: 32400
+      - "traefik.enable=true"
+      - "traefik.http.routers.plex.rule=Host(`plex.${SERVER_DOMAIN}`)"
+      - "traefik.http.routers.plex.entrypoints=http"
+      - "traefik.http.routers.plex.middlewares=https-redirect"
+      - "traefik.http.routers.plex-secure.rule=Host(`plex.${SERVER_DOMAIN}`)"
+      - "traefik.http.routers.plex-secure.entrypoints=https"
+      - "traefik.http.routers.plex-secure.tls=true"
+      - "traefik.http.routers.plex-secure.tls.certresolver=letsencrypt"
+      - "traefik.port=32400"
 
   tautulli:
     container_name: tautulli
@@ -67,13 +50,16 @@ services:
     volumes:
       - ${CONFIG_PATH}/tautulli:/config
       - ${CONFIG_PATH}/plex/Library/Application\ Support/Plex\ Media\ Server/Logs:/logs:ro
-    networks:
-      - traefik
     labels:
-      <<: *traefik-default-labels
-      traefik.backend: tautulli
-      traefik.frontend.rule: "Host:tautulli.${SERVER_DOMAIN}"
-      traefik.port: 8181
+      - "traefik.enable=true"
+      - "traefik.http.routers.tautulli.rule=Host(`tautulli.${SERVER_DOMAIN}`)"
+      - "traefik.http.routers.tautulli.entrypoints=http"
+      - "traefik.http.routers.tautulli.middlewares=https-redirect"
+      - "traefik.http.routers.tautulli-secure.rule=Host(`tautulli.${SERVER_DOMAIN}`)"
+      - "traefik.http.routers.tautulli-secure.entrypoints=https"
+      - "traefik.http.routers.tautulli-secure.tls=true"
+      - "traefik.http.routers.tautulli-secure.tls.certresolver=letsencrypt"
+      - "traefik.port=8181"
 
   ombi:
     container_name: ombi
@@ -88,10 +74,13 @@ services:
     volumes:
       - ${LOCALTIME_PATH}:/etc/localtime:ro
       - ${CONFIG_PATH}/ombi:/config
-    networks:
-      - traefik
     labels:
-      <<: *traefik-default-labels
-      traefik.backend: ombi
-      traefik.frontend.rule: "Host:ombi.${SERVER_DOMAIN}"
-      traefik.port: 3579
+      - "traefik.enable=true"
+      - "traefik.http.routers.ombi.rule=Host(`ombi.${SERVER_DOMAIN}`)"
+      - "traefik.http.routers.ombi.entrypoints=http"
+      - "traefik.http.routers.ombi.middlewares=https-redirect"
+      - "traefik.http.routers.ombi-secure.rule=Host(`ombi.${SERVER_DOMAIN}`)"
+      - "traefik.http.routers.ombi-secure.entrypoints=https"
+      - "traefik.http.routers.ombi-secure.tls=true"
+      - "traefik.http.routers.ombi-secure.tls.certresolver=letsencrypt"
+      - "traefik.port=3579"

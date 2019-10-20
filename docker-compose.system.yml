@@ -41,7 +41,6 @@ services:
     restart: unless-stopped
     command:
       - "--api=true"
-      - "--api.insecure=true"
       - "--entrypoints.http=true"
       - "--entrypoints.http.address=:80"
       - "--entrypoints.https=true"
@@ -52,7 +51,6 @@ services:
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http"
       - "--certificatesresolvers.letsencrypt.acme.email=odarriba@gmail.com"
       - "--certificatesresolvers.letsencrypt.acme.tlschallenge=false"
-      - "--log.level=INFO"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.watch=true"

@@ -38,13 +38,16 @@ services:
       - ${CONFIG_PATH}/transmission:/config
       - ${DOWNLOADS_PATH}/transmission/watch:/watch
       - ${DOWNLOADS_PATH}/transmission:/downloads
-    networks:
-      - traefik
     labels:
-      <<: *traefik-default-labels
-      traefik.backend: transmission
-      traefik.frontend.rule: "Host:transmission.${SERVER_DOMAIN}"
-      traefik.port: 9091
+      - "traefik.enable=true"
+      - "traefik.http.routers.transmission.rule=Host(`transmission.${SERVER_DOMAIN}`)"
+      - "traefik.http.routers.transmission.entrypoints=http"
+      - "traefik.http.routers.transmission.middlewares=https-redirect"
+      - "traefik.http.routers.transmission-secure.rule=Host(`transmission.${SERVER_DOMAIN}`)"
+      - "traefik.http.routers.transmission-secure.entrypoints=https"
+      - "traefik.http.routers.transmission-secure.tls=true"
+      - "traefik.http.routers.transmission-secure.tls.certresolver=letsencrypt"
+      - "traefik.port=9091"
 
   sonarr:
     container_name: sonarr
@@ -63,13 +66,17 @@ services:
       - ${CONFIG_PATH}/sonarr:/config
       - ${LOCAL_MEDIA_PATH}:/tv
       - ${DOWNLOADS_PATH}/transmission:/downloads
-    networks:
-      - traefik
     labels:
-      <<: *traefik-auth-labels
-      traefik.backend: sonarr
-      traefik.frontend.rule: "Host:sonarr.${SERVER_DOMAIN}"
-      traefik.port: 8989
+      - "traefik.enable=true"
+      - "traefik.http.routers.sonarr.rule=Host(`sonarr.${SERVER_DOMAIN}`)"
+      - "traefik.http.routers.sonarr.entrypoints=http"
+      - "traefik.http.routers.sonarr.middlewares=https-redirect"
+      - "traefik.http.routers.sonarr-secure.rule=Host(`sonarr.${SERVER_DOMAIN}`)"
+      - "traefik.http.routers.sonarr-secure.entrypoints=https"
+      - "traefik.http.routers.sonarr-secure.middlewares=http-auth"
+      - "traefik.http.routers.sonarr-secure.tls=true"
+      - "traefik.http.routers.sonarr-secure.tls.certresolver=letsencrypt"
+      - "traefik.port=8989"
 
   radarr:
     container_name: radarr
@@ -88,13 +95,17 @@ services:
       - ${CONFIG_PATH}/radarr:/config
       - ${LOCAL_MEDIA_PATH}:/movies
       - ${DOWNLOADS_PATH}/transmission:/downloads
-    networks:
-      - traefik
     labels:
-      <<: *traefik-auth-labels
-      traefik.backend: radarr
-      traefik.frontend.rule: "Host:radarr.${SERVER_DOMAIN}"
-      traefik.port: 7878
+      - "traefik.enable=true"
+      - "traefik.http.routers.radarr.rule=Host(`radarr.${SERVER_DOMAIN}`)"
+      - "traefik.http.routers.radarr.entrypoints=http"
+      - "traefik.http.routers.radarr.middlewares=https-redirect"
+      - "traefik.http.routers.radarr-secure.rule=Host(`radarr.${SERVER_DOMAIN}`)"
+      - "traefik.http.routers.radarr-secure.entrypoints=https"
+      - "traefik.http.routers.radarr-secure.middlewares=http-auth"
+      - "traefik.http.routers.radarr-secure.tls=true"
+      - "traefik.http.routers.radarr-secure.tls.certresolver=letsencrypt"
+      - "traefik.port=7878"
 
   jackett:
     container_name: jackett
@@ -109,10 +120,14 @@ services:
       - ${LOCALTIME_PATH}:/etc/localtime:ro
       - ${CONFIG_PATH}/jackett:/config
       - ${DOWNLOADS_PATH}:/downloads
-    networks:
-      - traefik
     labels:
-      <<: *traefik-auth-labels
-      traefik.backend: jackett
-      traefik.frontend.rule: "Host:jackett.${SERVER_DOMAIN}"
-      traefik.port: 9117
+      - "traefik.enable=true"
+      - "traefik.http.routers.jackett.rule=Host(`jackett.${SERVER_DOMAIN}`)"
+      - "traefik.http.routers.jackett.entrypoints=http"
+      - "traefik.http.routers.jackett.middlewares=https-redirect"
+      - "traefik.http.routers.jackett-secure.rule=Host(`jackett.${SERVER_DOMAIN}`)"
+      - "traefik.http.routers.jackett-secure.entrypoints=https"
+      - "traefik.http.routers.jackett-secure.middlewares=http-auth"
+      - "traefik.http.routers.jackett-secure.tls=true"
+      - "traefik.http.routers.jackett-secure.tls.certresolver=letsencrypt"
+      - "traefik.port=9117"
